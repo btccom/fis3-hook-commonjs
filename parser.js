@@ -51,11 +51,11 @@ module.exports = function (info, opts) {
                         }).join(',') + ']';
 
                     if (file.dynamicRequire) {
-                        m = `<?php app('fis')->addScript('async', [${
+                        m = `/* <?php app('fis')->addScript('async', [${
                                 info.params.map(p => {
                                     return isIgnored(p) ? p : lang.id.wrap(p);
                                 }).join(',')
-                                }]); ?>\n` + m;
+                                }]); ?> */` + m;
                     }
 
                     break;
@@ -69,11 +69,11 @@ module.exports = function (info, opts) {
                         }).join(',') + ']';
 
                     if (file.dynamicRequire) {
-                        m = `<?php app('fis')->addScript('async', [${
+                        m = `/* <?php app('fis')->addScript('async', [${
                                 info.params.map(p => {
                                     return isIgnored(p) ? p : lang.id.wrap(p);
                                 }).join(',')
-                                }]); ?>\n` + m;
+                                }]); ?> */` + m;
                     }
                     break;
 
@@ -87,10 +87,10 @@ module.exports = function (info, opts) {
                         }).join(',') + (async ? ']' : '');
 
                     if (file.dynamicRequire) {
-                        m = `<?php app('fis')->addScript('${ async ? 'async' : 'sync' }', [${
+                        m = `/* <?php app('fis')->addScript('${ async ? 'async' : 'sync' }', [${
                                 info.params.map(p => {
                                     return isIgnored(p) ? p : lang.id.wrap(p);
-                                }).join(',') }]) ?>\n` + m;
+                                }).join(',') }]) ?> */` + m;
                     }
 
                     break;
