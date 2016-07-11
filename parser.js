@@ -39,6 +39,9 @@ module.exports = function (info, opts) {
         return;
     }
 
+    var asyncScripts = [],
+        syncScripts = [];
+
     info.content = content.replace(rRequire, function (m, comment, type, params) {
         if (type) {
             switch (type) {
@@ -51,11 +54,9 @@ module.exports = function (info, opts) {
                         }).join(',') + ']';
 
                     if (file.dynamicRequire) {
-                        m = `/* <?php app('fis')->addScript('async', [${
-                                info.params.map(p => {
-                                    return isIgnored(p) ? p : lang.id.wrap(p);
-                                }).join(',')
-                                }]); ?> */` + m;
+                        info.params.forEach(p => {
+                            return isIgnored(p) ? asyncScripts.push(p) : asyncScripts.push(lang.id.wrap(p));
+                        });
                     }
 
                     break;
@@ -69,11 +70,9 @@ module.exports = function (info, opts) {
                         }).join(',') + ']';
 
                     if (file.dynamicRequire) {
-                        m = `/* <?php app('fis')->addScript('async', [${
-                                info.params.map(p => {
-                                    return isIgnored(p) ? p : lang.id.wrap(p);
-                                }).join(',')
-                                }]); ?> */` + m;
+                        info.params.forEach(p => {
+                            return isIgnored(p) ? asyncScripts.push(p) : asyncScripts.push(lang.id.wrap(p));
+                        });
                     }
                     break;
 
@@ -87,10 +86,13 @@ module.exports = function (info, opts) {
                         }).join(',') + (async ? ']' : '');
 
                     if (file.dynamicRequire) {
-                        m = `/* <?php app('fis')->addScript('${ async ? 'async' : 'sync' }', [${
-                                info.params.map(p => {
-                                    return isIgnored(p) ? p : lang.id.wrap(p);
-                                }).join(',') }]) ?> */` + m;
+                        info.params.forEach(p => {
+                            if (async) {
+                                return isIgnored(p) ? asyncScripts.push(p) : asyncScripts.push(lang.id.wrap(p));
+                            } else {
+                                return isIgnored(p) ? syncScripts.push(p) : syncScripts.push(lang.id.wrap(p));
+                            }
+                        });
                     }
 
                     break;
@@ -99,7 +101,13 @@ module.exports = function (info, opts) {
 
         return m;
     });
-}
+
+    if (file.dynamicRequire) {
+        var phpCode = `"@btccom{{ app('fis')->addScript('async', [${asyncScripts.join(',')}]) }}`
+                    +  `{{ app('fis')->addScript('sync', [${syncScripts.join(',')}]) }}";`;
+        info.content = phpCode + info.content;
+    }
+};
 
 function parseParams(value) {
     var hasBrackets = false;
