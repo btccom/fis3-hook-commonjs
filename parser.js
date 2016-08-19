@@ -103,8 +103,13 @@ module.exports = function (info, opts) {
     });
 
     if (file.dynamicRequire) {
-        var phpCode = `"@btccom{{ app('fis')->addScript('async', [${asyncScripts.join(',')}]) }}`
-                    +  `{{ app('fis')->addScript('sync', [${syncScripts.join(',')}]) }}";`;
+        var phpCode = '';
+        if (syncScripts.length) {
+            phpCode += `//@btccom.sync:${syncScripts.join('|')}\n`;
+        }
+        if (asyncScripts.length) {
+            phpCode += `//@btccom.async:${asyncScripts.join('|')}\n`;
+        }
         info.content = phpCode + info.content;
     }
 };
