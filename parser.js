@@ -55,7 +55,7 @@ module.exports = function (info, opts) {
 
                     if (file.dynamicRequire) {
                         info.params.forEach(p => {
-                            return isIgnored(p) ? asyncScripts.push(p) : asyncScripts.push(lang.id.wrap(p));
+                            return asyncScripts.push(p);
                         });
                     }
 
@@ -71,7 +71,7 @@ module.exports = function (info, opts) {
 
                     if (file.dynamicRequire) {
                         info.params.forEach(p => {
-                            return isIgnored(p) ? asyncScripts.push(p) : asyncScripts.push(lang.id.wrap(p));
+                            return asyncScripts.push(p);
                         });
                     }
                     break;
@@ -88,9 +88,9 @@ module.exports = function (info, opts) {
                     if (file.dynamicRequire) {
                         info.params.forEach(p => {
                             if (async) {
-                                return isIgnored(p) ? asyncScripts.push(p) : asyncScripts.push(lang.id.wrap(p));
+                                return asyncScripts.push(p);
                             } else {
-                                return isIgnored(p) ? syncScripts.push(p) : syncScripts.push(lang.id.wrap(p));
+                                return syncScripts.push(p);
                             }
                         });
                     }
@@ -103,14 +103,14 @@ module.exports = function (info, opts) {
     });
 
     if (file.dynamicRequire) {
-        var phpCode = '';
+        var code = '';
         if (syncScripts.length) {
-            phpCode += `//@btccom.sync:${syncScripts.join('|')}\n`;
+            code += `"@btccom.sync:${syncScripts.map(p => lang.id.wrap(p.replace(/"/g, "'"))).join('|')}"\n`;
         }
         if (asyncScripts.length) {
-            phpCode += `//@btccom.async:${asyncScripts.join('|')}\n`;
+            code += `"@btccom.async:${asyncScripts.map(p => lang.id.wrap(p.replace(/"/g, "'"))).join('|')}"\n`;
         }
-        info.content = phpCode + info.content;
+        info.content = code + info.content;
     }
 };
 
