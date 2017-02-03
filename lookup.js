@@ -95,8 +95,14 @@ function tryFisIdLookUp(info, file, opts) {
 
 // 基于 BaseUrl 查找
 function tryBaseUrlLookUp(info, file, opts) {
-  if (root !== baseUrl && info.rest && info.rest[0] !== ".") {
-    return findResource(info.rest, baseUrl, opts.extList);
+  if (root !== baseUrl && info.rest) {
+    var ret = findResource(info.rest, baseUrl, opts.extList);
+
+    if (ret && ret.file && info.rest[0] === '.') {
+      fis.log.warn('Should use `%s` instead of `%s` in [`%s`] since `BaseUrl` should not be used in relative path resolving.', ret.file.subpath, info.rest, file.subpath);
+    }
+
+    return ret;
   }
 }
 
